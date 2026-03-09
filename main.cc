@@ -3,11 +3,44 @@ using std::cout;
 using std::endl;
 using std::string;
 
+template <typename T>
+struct Node {
+	T data;
+	Node<T>* next;
+};
+
+template <typename T>
+using List = Node<T>*;
+
 /// Empty list is null
+template <typename T>
+List<T> init() {
+	return nullptr;
+}
+
+template <typename T>
+void deinit(List<T> list) {
+	
+	if (list != nullptr) {
+
+		List<T> copy = list;
+		deinit (list: list ->next);
+		delete copy;
+		copy = nullptr;
+	}
+}
 
 /// Requirements:
 /// input: Φ [a, b, c, ...]
 /// output: [Φ, a, b, c, ...]
+template <typename T>
+List<T> prepend (List<T> old, T elem) {
+
+	Node<T>* node = new Node<T> ();
+	node -> data = elem;
+	node -> next = old;
+	return node;
+}
 
 /// Requirements:
 /// input: [a, Φ, c, ...] Φ
