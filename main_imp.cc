@@ -12,7 +12,6 @@ struct Node {
 template <typename T>
 using List = Node<T>*;
 
-/// Empty list is null
 template <typename T>
 List<T> init() {
 	return nullptr;
@@ -27,9 +26,6 @@ void deinit(List<T>& list) {
 	}
 }
 
-/// Requirements:
-/// input: Φ [a, b, c, ...]
-/// output: [Φ, a, b, c, ...]
 template <typename T>
 List<T> prepend(T elem, List<T> list) {
 	Node<T>* n = new Node<T>();
@@ -38,62 +34,51 @@ List<T> prepend(T elem, List<T> list) {
 	return n;
 }
 
-/// Requirements:
-/// input: [a, Φ, c, ...] Φ
-/// output: true
-///
-/// input: [a, b, c, ...] Φ
-/// output: false
 template <typename T>
-bool contains(List<T> list, T elem) {
-	if (list == nullptr)
-		return false;
-
-	if (list->data == elem)
-		return true;
-
-	return contains(list->next, elem);
-}
-
-/// Requirements:
-/// input: [a, b, c, ...] 2
-/// output: c
-///
-/// input: [a, b, c, ...] 0
-/// output: a
-template <typename T>
-T* index(List<T> list, unsigned int i) {
-	if (list == nullptr)
-		return nullptr;
-
-	if (i == 0)
-		return &list->data;
-
-	return index(list->next, i - 1);
-}
-
-/// Requirements:
-/// input: [a, b, c] 0
-/// output: [b, c]
-///
-/// input: [a, b, c] 2
-/// output: [a, b]
-///
-/// input: [a, b, c] 10000
-/// output: [a, b, c]
-template <typename T>
-List<T> remove_at(List<T> list, unsigned int offset) {
-	if (list == nullptr)
-		return nullptr;
-
-	if (offset == 0) {
-		List<T> l = list->next;
-		delete list;
-		return l;
+T* index(List<T> list, unsigned int offset) {
+	for (; list != nullptr;list = list->next) {
+		if (offset == 0)
+			return &list->data;
+		offset -= 1;
 	}
 
-	list->next = remove_at(list->next, offset - 1);
-	return list;
+	return nullptr;
+}
+
+template <typename T>
+bool contains(List<T> list, T elem) {
+	for(; list != nullptr; list = list->next) {
+		if (list->data == elem)
+			return true;
+	}
+
+	return false;
+}
+
+template <typename T>
+List<T> remove_at(List<T> list, unsigned int offset) {
+	List<T> orig = list;
+	if (list == nullptr)
+		return nullptr;
+
+	List<T> prev = list;
+	list = list->next;
+
+	for(List<T> ptr = list; ptr != nullptr;) {
+		if (offset == 0)
+			break;
+
+		prev = ptr;
+		ptr = ptr->next;
+	}
+
+	if (prev->next != nullptr) {
+		Node<T>* kod = prev->next;
+		prev->next = prev->next->next;
+		delete kod;
+	}
+
+	return orig;
 }
 
 // Helper function for printing the entire list
@@ -138,7 +123,7 @@ int main() {
 	// contains
 	cout << "contains 2: " << (contains(list, 2) ? "true" : "false") << endl;
 	cout << "contains 5: " << (contains(list, 5) ? "true" : "false") << endl;
-	cout << "contains 13: " << (contains(list, 13) ? "true" : "false") << endl;
+	cout << "contains 13: " << (contains(list, 42) ? "true" : "false") << endl;
 
 	// removal
 	list = remove_at(list, 2);
